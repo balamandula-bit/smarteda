@@ -1,499 +1,1247 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SmartEDA — VLSI Layout Generator</title>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Syne:wght@300;400;600;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#030712;--panel:#0a0f1a;--panel2:#0d1420;--border:#1a2d4a;
-  --accent:#00c8ff;--purple:#8b5cf6;--green:#10b981;--red:#ef4444;
-  --yellow:#f59e0b;--text:#e2e8f0;--muted:#4a6080;
-}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 20% 10%,rgba(0,200,255,0.04) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(139,92,246,0.04) 0%,transparent 60%);pointer-events:none;z-index:0;}
-body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,200,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,255,0.025) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;}
-.wrapper{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartEDA — VLSI Layout Generator</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Syne:wght@300;400;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #030712;
+      --panel: #0a0f1a;
+      --panel2: #0d1420;
+      --border: #1a2d4a;
+      --accent: #00c8ff;
+      --purple: #8b5cf6;
+      --green: #10b981;
+      --red: #ef4444;
+      --yellow: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #4a6080;
+    }
 
-header{padding:0 40px;height:62px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(3,7,18,0.85);backdrop-filter:blur(16px);position:sticky;top:0;z-index:200;}
-.logo{font-family:'Orbitron',monospace;font-size:20px;font-weight:900;color:var(--accent);text-shadow:0 0 20px rgba(0,200,255,0.5);letter-spacing:3px;}
-.logo em{color:var(--purple);font-style:normal;}
-.header-sub{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
-.status-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);display:inline-block;margin-right:8px;}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-.app-body{display:grid;grid-template-columns:380px 1fr;gap:0;flex:1;min-height:calc(100vh - 62px);}
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+    }
 
-.sidebar{border-right:1px solid var(--border);background:var(--panel);display:flex;flex-direction:column;overflow-y:auto;max-height:calc(100vh - 62px);scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
-.sidebar::-webkit-scrollbar{width:4px;}
-.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 50% at 20% 10%, rgba(0, 200, 255, 0.04) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 80% 80%, rgba(139, 92, 246, 0.04) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
 
-.section{padding:18px 20px;border-bottom:1px solid var(--border);}
-.section-title{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
-.section-title::before{content:'';width:3px;height:12px;background:var(--accent);border-radius:2px;box-shadow:0 0 8px var(--accent);}
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(0, 200, 255, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 200, 255, 0.025) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-.field{margin-bottom:10px;}
-.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;letter-spacing:0.5px;text-transform:uppercase;}
-input[type=text],input[type=number],select{width:100%;background:rgba(0,0,0,0.4);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:6px;font-family:'Share Tech Mono',monospace;font-size:13px;outline:none;transition:border-color 0.2s;}
-input[type=text]:focus,input[type=number]:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,200,255,0.1);}
-select option{background:#0a0f1a;}
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
 
-/* Algorithm selector */
-.algo-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;}
-.algo-tab{padding:8px 6px;background:rgba(0,0,0,0.3);border:1px solid var(--border);color:var(--muted);border-radius:6px;font-size:10px;font-family:'Share Tech Mono',monospace;cursor:pointer;text-align:center;transition:all 0.2s;letter-spacing:0.3px;}
-.algo-tab.active{border-color:var(--accent);color:var(--accent);background:rgba(0,200,255,0.08);}
-.algo-tab:hover:not(.active){border-color:var(--muted);color:var(--text);}
+    header {
+      padding: 0 40px;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(3, 7, 18, 0.85);
+      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
 
-/* Presets */
-.presets-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
-.preset-btn{padding:7px 10px;background:rgba(0,0,0,0.3);border:1px solid var(--border);color:var(--muted);border-radius:6px;font-size:10px;font-family:'Share Tech Mono',monospace;cursor:pointer;transition:all 0.2s;letter-spacing:0.3px;text-align:left;}
-.preset-btn:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,200,255,0.06);}
-.preset-btn.clear{border-color:rgba(239,68,68,0.3);color:var(--red);}
-.preset-btn.clear:hover{background:rgba(239,68,68,0.08);}
+    .logo {
+      font-family: 'Orbitron', monospace;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--accent);
+      text-shadow: 0 0 20px rgba(0, 200, 255, 0.5);
+      letter-spacing: 3px;
+    }
 
-.cell-row-inputs{display:grid;grid-template-columns:1fr 1fr 44px 44px 36px;gap:6px;align-items:end;margin-bottom:8px;}
-.cell-row-inputs label{font-size:9px;color:var(--muted);display:block;margin-bottom:3px;letter-spacing:0.5px;}
-.cells-list{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;max-height:180px;overflow-y:auto;}
-.cells-list::-webkit-scrollbar{width:3px;}
-.cells-list::-webkit-scrollbar-thumb{background:var(--border);}
-.cell-tag{display:grid;grid-template-columns:1fr auto auto 26px;gap:6px;align-items:center;background:rgba(0,0,0,0.35);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-family:'Share Tech Mono',monospace;font-size:12px;animation:fadeUp 0.2s ease forwards;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
-.cell-name{color:var(--text);font-weight:bold;}
-.cell-type-badge{padding:2px 7px;border-radius:10px;font-size:9px;color:#000;font-weight:bold;}
-.cell-dims{color:var(--muted);font-size:10px;}
-.del-btn{width:22px;height:22px;border-radius:4px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:var(--red);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
-.del-btn:hover{background:rgba(239,68,68,0.25);}
+    .logo em {
+      color: var(--purple);
+      font-style: normal;
+    }
 
-.conn-row-inputs{display:grid;grid-template-columns:1fr 1fr 36px;gap:6px;align-items:end;margin-bottom:8px;}
-.conn-list{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;max-height:140px;overflow-y:auto;}
-.conn-list::-webkit-scrollbar{width:3px;}
-.conn-tag{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:5px;padding:6px 10px;font-family:'Share Tech Mono',monospace;font-size:11px;animation:fadeUp 0.2s ease forwards;}
-.conn-a{color:var(--accent);}.conn-b{color:var(--purple);}.arrow{color:var(--green);}
+    .header-sub {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
 
-.grid-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.counter-badges{display:flex;gap:6px;margin-bottom:8px;}
-.cbadge{padding:3px 9px;border-radius:12px;font-size:11px;font-family:'Share Tech Mono',monospace;background:rgba(0,200,255,0.08);border:1px solid rgba(0,200,255,0.2);color:var(--accent);}
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      display: inline-block;
+      margin-right: 8px;
+    }
 
-/* Buttons */
-.generate-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--accent),#0077aa);border:none;color:#000;font-family:'Orbitron',monospace;font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;border-radius:8px;cursor:pointer;transition:all 0.2s;box-shadow:0 0 20px rgba(0,200,255,0.3);margin-bottom:8px;}
-.generate-btn:hover{transform:translateY(-2px);box-shadow:0 4px 30px rgba(0,200,255,0.5);}
-.generate-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
-.compare-btn{width:100%;padding:11px;background:linear-gradient(135deg,var(--purple),#5b21b6);border:none;color:#fff;font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border-radius:8px;cursor:pointer;transition:all 0.2s;box-shadow:0 0 15px rgba(139,92,246,0.25);}
-.compare-btn:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(139,92,246,0.4);}
-.compare-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
-.add-btn{width:32px;height:32px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:var(--green);border-radius:6px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;align-self:end;}
-.add-btn:hover{background:rgba(16,185,129,0.2);}
+    .app-body {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 0;
+      flex: 1;
+      min-height: calc(100vh - 62px);
+    }
 
-/* Main content */
-.main-content{display:flex;flex-direction:column;overflow-y:auto;max-height:calc(100vh - 62px);scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
-.main-content::-webkit-scrollbar{width:4px;}
-.main-content::-webkit-scrollbar-thumb{background:var(--border);}
+    .sidebar {
+      border-right: 1px solid var(--border);
+      background: var(--panel);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      max-height: calc(100vh - 62px);
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
 
-.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px;text-align:center;gap:20px;}
-.empty-icon{width:80px;height:80px;border:2px solid var(--border);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:36px;background:rgba(0,200,255,0.04);color:var(--muted);}
-.empty-state h2{font-family:'Orbitron',monospace;font-size:16px;color:var(--muted);letter-spacing:1px;}
-.empty-state p{font-size:13px;color:var(--muted);opacity:0.6;max-width:340px;line-height:1.7;}
+    .sidebar::-webkit-scrollbar {
+      width: 4px;
+    }
 
-.loading-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:60px;}
-.spinner{width:56px;height:56px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-state p{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:1px;}
-.loading-steps{display:flex;flex-direction:column;gap:6px;text-align:center;}
-.loading-step{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);padding:4px 16px;border-radius:4px;transition:all 0.3s;}
-.loading-step.active{color:var(--accent);background:rgba(0,200,255,0.06);}
-.loading-step.done{color:var(--green);}
+    .sidebar::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
 
-.results-area{padding:20px;}
+    .section {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+    }
 
-/* Metrics */
-.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:20px;}
-.metric-card{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;position:relative;overflow:hidden;}
-.metric-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--purple));transform:scaleX(0);transform-origin:left;transition:transform 0.6s 0.2s;}
-.metric-card.show::after{transform:scaleX(1);}
-.m-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;}
-.m-val{font-family:'Share Tech Mono',monospace;font-size:17px;font-weight:bold;}
-.m-val.good{color:var(--green);}.m-val.warn{color:var(--yellow);}
-.m-sub{font-size:10px;color:var(--muted);margin-top:3px;font-family:'Share Tech Mono',monospace;}
+    .section-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-/* Layout image */
-.layout-img-wrap{background:var(--panel2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;}
-.layout-img-header{padding:11px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:rgba(0,200,255,0.03);}
-.layout-img-header span{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--accent);}
-.layout-img-wrap img{width:100%;display:block;}
+    .section-title::before {
+      content: '';
+      width: 3px;
+      height: 12px;
+      background: var(--accent);
+      border-radius: 2px;
+      box-shadow: 0 0 8px var(--accent);
+    }
 
-/* Compare table */
-.compare-table-wrap{background:var(--panel2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;}
-.compare-table-header{padding:11px 18px;border-bottom:1px solid var(--border);background:rgba(139,92,246,0.04);}
-.compare-table-header span{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:1px;color:var(--purple);}
-table{width:100%;border-collapse:collapse;}
-th{padding:10px 16px;text-align:left;font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);}
-td{padding:10px 16px;font-family:'Share Tech Mono',monospace;font-size:12px;border-bottom:1px solid rgba(26,45,74,0.5);}
-tr:last-child td{border-bottom:none;}
-.best-col{color:var(--green);font-weight:bold;}
-.pass{color:var(--green);}.fail{color:var(--red);}
+    .field {
+      margin-bottom: 10px;
+    }
 
-/* Export buttons */
-.export-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
-.export-btn{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:8px;font-family:'Share Tech Mono',monospace;font-size:12px;cursor:pointer;text-decoration:none;transition:all 0.2s;border:1px solid;}
-.export-btn.png{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.3);color:var(--green);}
-.export-btn.png:hover{background:rgba(16,185,129,0.2);}
-.export-btn.csv{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);color:var(--yellow);}
-.export-btn.csv:hover{background:rgba(245,158,11,0.2);}
+    .field label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
 
-.error-box{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:14px 18px;color:var(--red);font-family:'Share Tech Mono',monospace;font-size:13px;margin:20px;}
-</style>
+    input[type=text],
+    input[type=number],
+    select {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type=text]:focus,
+    input[type=number]:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(0, 200, 255, 0.1);
+    }
+
+    select option {
+      background: #0a0f1a;
+    }
+
+    /* Algorithm selector */
+    .algo-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .algo-tab {
+      padding: 8px 6px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      font-size: 10px;
+      font-family: 'Share Tech Mono', monospace;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      letter-spacing: 0.3px;
+    }
+
+    .algo-tab.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(0, 200, 255, 0.08);
+    }
+
+    .algo-tab:hover:not(.active) {
+      border-color: var(--muted);
+      color: var(--text);
+    }
+
+    /* Presets */
+    .presets-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .preset-btn {
+      padding: 7px 10px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      font-size: 10px;
+      font-family: 'Share Tech Mono', monospace;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.3px;
+      text-align: left;
+    }
+
+    .preset-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(0, 200, 255, 0.06);
+    }
+
+    .preset-btn.clear {
+      border-color: rgba(239, 68, 68, 0.3);
+      color: var(--red);
+    }
+
+    .preset-btn.clear:hover {
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    .cell-row-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 44px 44px 36px;
+      gap: 6px;
+      align-items: end;
+      margin-bottom: 8px;
+    }
+
+    .cell-row-inputs label {
+      font-size: 9px;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 3px;
+      letter-spacing: 0.5px;
+    }
+
+    .cells-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 10px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .cells-list::-webkit-scrollbar {
+      width: 3px;
+    }
+
+    .cells-list::-webkit-scrollbar-thumb {
+      background: var(--border);
+    }
+
+    .cell-tag {
+      display: grid;
+      grid-template-columns: 1fr auto auto 26px;
+      gap: 6px;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      animation: fadeUp 0.2s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(5px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    .cell-name {
+      color: var(--text);
+      font-weight: bold;
+    }
+
+    .cell-type-badge {
+      padding: 2px 7px;
+      border-radius: 10px;
+      font-size: 9px;
+      color: #000;
+      font-weight: bold;
+    }
+
+    .cell-dims {
+      color: var(--muted);
+      font-size: 10px;
+    }
+
+    .del-btn {
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: var(--red);
+      cursor: pointer;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .del-btn:hover {
+      background: rgba(239, 68, 68, 0.25);
+    }
+
+    .conn-row-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 36px;
+      gap: 6px;
+      align-items: end;
+      margin-bottom: 8px;
+    }
+
+    .conn-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 10px;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+
+    .conn-list::-webkit-scrollbar {
+      width: 3px;
+    }
+
+    .conn-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 6px 10px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      animation: fadeUp 0.2s ease forwards;
+    }
+
+    .conn-a {
+      color: var(--accent);
+    }
+
+    .conn-b {
+      color: var(--purple);
+    }
+
+    .arrow {
+      color: var(--green);
+    }
+
+    .grid-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .counter-badges {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .cbadge {
+      padding: 3px 9px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-family: 'Share Tech Mono', monospace;
+      background: rgba(0, 200, 255, 0.08);
+      border: 1px solid rgba(0, 200, 255, 0.2);
+      color: var(--accent);
+    }
+
+    /* Buttons */
+    .generate-btn {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, var(--accent), #0077aa);
+      border: none;
+      color: #000;
+      font-family: 'Orbitron', monospace;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 20px rgba(0, 200, 255, 0.3);
+      margin-bottom: 8px;
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 30px rgba(0, 200, 255, 0.5);
+    }
+
+    .generate-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .compare-btn {
+      width: 100%;
+      padding: 11px;
+      background: linear-gradient(135deg, var(--purple), #5b21b6);
+      border: none;
+      color: #fff;
+      font-family: 'Orbitron', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 15px rgba(139, 92, 246, 0.25);
+    }
+
+    .compare-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+    }
+
+    .compare-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .add-btn {
+      width: 32px;
+      height: 32px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--green);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      align-self: end;
+    }
+
+    .add-btn:hover {
+      background: rgba(16, 185, 129, 0.2);
+    }
+
+    /* Main content */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      max-height: calc(100vh - 62px);
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .main-content::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .main-content::-webkit-scrollbar-thumb {
+      background: var(--border);
+    }
+
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px;
+      text-align: center;
+      gap: 20px;
+    }
+
+    .empty-icon {
+      width: 80px;
+      height: 80px;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      background: rgba(0, 200, 255, 0.04);
+      color: var(--muted);
+    }
+
+    .empty-state h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: 16px;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    .empty-state p {
+      font-size: 13px;
+      color: var(--muted);
+      opacity: 0.6;
+      max-width: 340px;
+      line-height: 1.7;
+    }
+
+    .loading-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 60px;
+    }
+
+    .spinner {
+      width: 56px;
+      height: 56px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .loading-state p {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      color: var(--accent);
+      letter-spacing: 1px;
+    }
+
+    .loading-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      text-align: center;
+    }
+
+    .loading-step {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      padding: 4px 16px;
+      border-radius: 4px;
+      transition: all 0.3s;
+    }
+
+    .loading-step.active {
+      color: var(--accent);
+      background: rgba(0, 200, 255, 0.06);
+    }
+
+    .loading-step.done {
+      color: var(--green);
+    }
+
+    .results-area {
+      padding: 20px;
+    }
+
+    /* Metrics */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .metric-card {
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--purple));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.6s 0.2s;
+    }
+
+    .metric-card.show::after {
+      transform: scaleX(1);
+    }
+
+    .m-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+
+    .m-val {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 17px;
+      font-weight: bold;
+    }
+
+    .m-val.good {
+      color: var(--green);
+    }
+
+    .m-val.warn {
+      color: var(--yellow);
+    }
+
+    .m-sub {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 3px;
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    /* Layout image */
+    .layout-img-wrap {
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .layout-img-header {
+      padding: 11px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0, 200, 255, 0.03);
+    }
+
+    .layout-img-header span {
+      font-family: 'Orbitron', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--accent);
+    }
+
+    .layout-img-wrap img {
+      width: 100%;
+      display: block;
+    }
+
+    /* Compare table */
+    .compare-table-wrap {
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .compare-table-header {
+      padding: 11px 18px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(139, 92, 246, 0.04);
+    }
+
+    .compare-table-header span {
+      font-family: 'Orbitron', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--purple);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      padding: 10px 16px;
+      text-align: left;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 10px 16px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      border-bottom: 1px solid rgba(26, 45, 74, 0.5);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .best-col {
+      color: var(--green);
+      font-weight: bold;
+    }
+
+    .pass {
+      color: var(--green);
+    }
+
+    .fail {
+      color: var(--red);
+    }
+
+    /* Export buttons */
+    .export-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .export-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      border: 1px solid;
+    }
+
+    .export-btn.png {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: var(--green);
+    }
+
+    .export-btn.png:hover {
+      background: rgba(16, 185, 129, 0.2);
+    }
+
+    .export-btn.csv {
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.3);
+      color: var(--yellow);
+    }
+
+    .export-btn.csv:hover {
+      background: rgba(245, 158, 11, 0.2);
+    }
+
+    .error-box {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 8px;
+      padding: 14px 18px;
+      color: var(--red);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 13px;
+      margin: 20px;
+    }
+  </style>
 </head>
+
 <body>
-<div class="wrapper">
-<header>
-  <div class="logo">Smart<em>EDA</em></div>
-  <div class="header-sub">AI-Driven VLSI Layout Generator</div>
-  <div style="display:flex;align-items:center;font-size:12px;color:var(--muted);font-family:'Share Tech Mono',monospace;">
-    <span class="status-dot"></span>System Online
-  </div>
-</header>
-
-<div class="app-body">
-<aside class="sidebar">
-
-  <!-- Circuit Setup -->
-  <div class="section">
-    <div class="section-title">Circuit Setup</div>
-    <div class="field">
-      <label>Circuit Name</label>
-      <input type="text" id="circuitName" value="My Custom Circuit">
-    </div>
-    <div class="grid-row">
-      <div class="field"><label>Grid Width</label><input type="number" id="gridW" value="24" min="10" max="60"></div>
-      <div class="field"><label>Grid Height</label><input type="number" id="gridH" value="20" min="10" max="60"></div>
-    </div>
-  </div>
-
-  <!-- AI Algorithm -->
-  <div class="section">
-    <div class="section-title">AI Algorithm</div>
-    <div class="algo-tabs">
-      <div class="algo-tab active" onclick="setAlgo('sa',this)">Simulated<br>Annealing</div>
-      <div class="algo-tab" onclick="setAlgo('ga',this)">Genetic<br>Algorithm</div>
-      <div class="algo-tab" onclick="setAlgo('pso',this)">Particle<br>Swarm</div>
-    </div>
-    <div style="font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace;line-height:1.5;" id="algoDesc">
-      Temperature-based optimization. Accepts bad moves with decreasing probability to escape local optima.
-    </div>
-  </div>
-
-  <!-- Presets -->
-  <div class="section">
-    <div class="section-title">Preset Circuits</div>
-    <div class="presets-grid">
-      <button class="preset-btn" onclick="loadPreset('basic_gates')">⬡ Basic Gates</button>
-      <button class="preset-btn" onclick="loadPreset('adder')">⬡ 4-bit Adder</button>
-      <button class="preset-btn" onclick="loadPreset('counter')">⬡ 4-bit Counter</button>
-      <button class="preset-btn" onclick="loadPreset('mux')">⬡ 4:1 MUX</button>
-      <button class="preset-btn" onclick="loadPreset('alu')">⬡ 8-bit ALU</button>
-      <button class="preset-btn" onclick="loadPreset('register_file')">⬡ Register File</button>
-      <button class="preset-btn" onclick="loadPreset('uart')">⬡ UART Ctrl</button>
-      <button class="preset-btn" onclick="loadPreset('vga')">⬡ VGA Ctrl</button>
-      <button class="preset-btn" onclick="loadPreset('cpu')">⬡ 16-bit CPU</button>
-      <button class="preset-btn" onclick="loadPreset('soc')">⬡ Simple SoC</button>
-      <button class="preset-btn clear" onclick="clearAll()" style="grid-column:span 2;">✕ Clear All</button>
-    </div>
-  </div>
-
-  <!-- Add Cells -->
-  <div class="section">
-    <div class="section-title">Add Cells</div>
-    <div class="counter-badges"><div class="cbadge" id="cellCount">0 cells</div></div>
-    <div class="cell-row-inputs">
-      <div><label>Name</label><input type="text" id="cellName" placeholder="e.g. ALU" maxlength="12"></div>
-      <div><label>Type</label>
-        <select id="cellType">
-          {% for t in cell_types %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
-        </select>
+  <div class="wrapper">
+    <header>
+      <div class="logo">Smart<em>EDA</em></div>
+      <div class="header-sub">AI-Driven VLSI Layout Generator</div>
+      <div
+        style="display:flex;align-items:center;font-size:12px;color:var(--muted);font-family:'Share Tech Mono',monospace;">
+        <span class="status-dot"></span>System Online
       </div>
-      <div><label>W</label><input type="number" id="cellW" value="2" min="1" max="6"></div>
-      <div><label>H</label><input type="number" id="cellH" value="2" min="1" max="6"></div>
-      <button class="add-btn" onclick="addCell()" title="Add">+</button>
+    </header>
+
+    <div class="app-body">
+      <aside class="sidebar">
+
+        <!-- Circuit Setup -->
+        <div class="section">
+          <div class="section-title">Circuit Setup</div>
+          <div class="field">
+            <label>Circuit Name</label>
+            <input type="text" id="circuitName" value="My Custom Circuit">
+          </div>
+          <div class="grid-row">
+            <div class="field"><label>Grid Width</label><input type="number" id="gridW" value="24" min="10" max="60">
+            </div>
+            <div class="field"><label>Grid Height</label><input type="number" id="gridH" value="20" min="10" max="60">
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Algorithm -->
+        <div class="section">
+          <div class="section-title">AI Algorithm</div>
+          <div class="algo-tabs">
+            <div class="algo-tab active" onclick="setAlgo('sa',this)">Simulated<br>Annealing</div>
+            <div class="algo-tab" onclick="setAlgo('ga',this)">Genetic<br>Algorithm</div>
+            <div class="algo-tab" onclick="setAlgo('pso',this)">Particle<br>Swarm</div>
+          </div>
+          <div style="font-size:10px;color:var(--muted);font-family:'Share Tech Mono',monospace;line-height:1.5;"
+            id="algoDesc">
+            Temperature-based optimization. Accepts bad moves with decreasing probability to escape local optima.
+          </div>
+        </div>
+
+        <!-- Presets -->
+        <div class="section">
+          <div class="section-title">Preset Circuits</div>
+          <div class="presets-grid">
+            <button class="preset-btn" onclick="loadPreset('basic_gates')">⬡ Basic Gates</button>
+            <button class="preset-btn" onclick="loadPreset('adder')">⬡ 4-bit Adder</button>
+            <button class="preset-btn" onclick="loadPreset('counter')">⬡ 4-bit Counter</button>
+            <button class="preset-btn" onclick="loadPreset('mux')">⬡ 4:1 MUX</button>
+            <button class="preset-btn" onclick="loadPreset('alu')">⬡ 8-bit ALU</button>
+            <button class="preset-btn" onclick="loadPreset('register_file')">⬡ Register File</button>
+            <button class="preset-btn" onclick="loadPreset('uart')">⬡ UART Ctrl</button>
+            <button class="preset-btn" onclick="loadPreset('vga')">⬡ VGA Ctrl</button>
+            <button class="preset-btn" onclick="loadPreset('cpu')">⬡ 16-bit CPU</button>
+            <button class="preset-btn" onclick="loadPreset('soc')">⬡ Simple SoC</button>
+            <button class="preset-btn clear" onclick="clearAll()" style="grid-column:span 2;">✕ Clear All</button>
+          </div>
+        </div>
+
+        <!-- Add Cells -->
+        <div class="section">
+          <div class="section-title">Add Cells</div>
+          <div class="counter-badges">
+            <div class="cbadge" id="cellCount">0 cells</div>
+          </div>
+          <div class="cell-row-inputs">
+            <div><label>Name</label><input type="text" id="cellName" placeholder="e.g. ALU" maxlength="12"></div>
+            <div><label>Type</label>
+              <select id="cellType">
+                {% for t in cell_types %}<option value="{{ t }}">{{ t }}</option>{% endfor %}
+              </select>
+            </div>
+            <div><label>W</label><input type="number" id="cellW" value="2" min="1" max="6"></div>
+            <div><label>H</label><input type="number" id="cellH" value="2" min="1" max="6"></div>
+            <button class="add-btn" onclick="addCell()" title="Add">+</button>
+          </div>
+          <div class="cells-list" id="cellsList"></div>
+        </div>
+
+        <!-- Add Connections -->
+        <div class="section">
+          <div class="section-title">Add Connections</div>
+          <div class="counter-badges">
+            <div class="cbadge" id="connCount">0 nets</div>
+          </div>
+          <div class="conn-row-inputs">
+            <div><label>From</label><select id="connFrom">
+                <option value="">— select —</option>
+              </select></div>
+            <div><label>To</label><select id="connTo">
+                <option value="">— select —</option>
+              </select></div>
+            <button class="add-btn" onclick="addConn()" title="Add">+</button>
+          </div>
+          <div class="conn-list" id="connList"></div>
+        </div>
+
+        <!-- Generate -->
+        <div class="section" style="border-bottom:none;">
+          <button class="generate-btn" id="genBtn" onclick="generate()">▶ &nbsp;Generate Layout</button>
+          <button class="compare-btn" id="cmpBtn" onclick="compareAll()">⚡ &nbsp;Compare All 3 Algorithms</button>
+        </div>
+
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content" id="mainContent">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">⬡</div>
+          <h2>No Layout Generated</h2>
+          <p>Load a preset circuit or add your own cells and connections, then click Generate Layout.</p>
+          <p style="font-size:11px;font-family:'Share Tech Mono',monospace;color:var(--muted);opacity:0.5;">3 AI
+            algorithms available — Simulated Annealing, Genetic Algorithm, Particle Swarm</p>
+        </div>
+
+        <div class="loading-state" id="loadingState" style="display:none;">
+          <div class="spinner"></div>
+          <div class="loading-steps">
+            <div class="loading-step" id="ls1">[ 1 ] Parsing circuit netlist...</div>
+            <div class="loading-step" id="ls2">[ 2 ] Generating baseline placement...</div>
+            <div class="loading-step" id="ls3">[ 3 ] Running AI optimizer...</div>
+            <div class="loading-step" id="ls4">[ 4 ] EDA validation — DRC checks...</div>
+            <div class="loading-step" id="ls5">[ 5 ] Rendering layout image...</div>
+          </div>
+        </div>
+
+        <div class="results-area" id="resultsArea" style="display:none;">
+
+          <!-- Metrics -->
+          <div class="metrics-grid" id="metricsGrid">
+            <div class="metric-card" id="mc1">
+              <div class="m-label">Wire Length</div>
+              <div class="m-val good" id="mv-wl">—</div>
+              <div class="m-sub" id="ms-wl">—</div>
+            </div>
+            <div class="metric-card" id="mc2">
+              <div class="m-label">DRC Status</div>
+              <div class="m-val" id="mv-drc">—</div>
+              <div class="m-sub" id="ms-drc">—</div>
+            </div>
+            <div class="metric-card" id="mc3">
+              <div class="m-label">Power (Est.)</div>
+              <div class="m-val good" id="mv-pwr">—</div>
+              <div class="m-sub" id="ms-pwr">—</div>
+            </div>
+            <div class="metric-card" id="mc4">
+              <div class="m-label">Timing (Est.)</div>
+              <div class="m-val good" id="mv-tim">—</div>
+              <div class="m-sub" id="ms-tim">—</div>
+            </div>
+            <div class="metric-card" id="mc5">
+              <div class="m-label">Area Util.</div>
+              <div class="m-val good" id="mv-area">—</div>
+              <div class="m-sub">after optimization</div>
+            </div>
+            <div class="metric-card" id="mc6">
+              <div class="m-label">WL Reduction</div>
+              <div class="m-val good" id="mv-imp">—</div>
+              <div class="m-sub" id="ms-algo">—</div>
+            </div>
+          </div>
+
+          <!-- Export buttons -->
+          <div class="export-row">
+            <a class="export-btn png" id="downloadBtn" download="vlsi_layout.png">↓ Download PNG</a>
+            <a class="export-btn csv" href="/export/csv">↓ Export CSV Data</a>
+          </div>
+
+          <!-- Layout image -->
+          <div class="layout-img-wrap">
+            <div class="layout-img-header">
+              <span
+                style="width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);display:inline-block;"></span>
+              <span>Generated VLSI Layout — Before vs After</span>
+            </div>
+            <img id="layoutImg" src="" alt="VLSI Layout">
+          </div>
+
+          <!-- Compare table (shown only after compareAll) -->
+          <div class="compare-table-wrap" id="compareTableWrap" style="display:none;">
+            <div class="compare-table-header"><span>⚡ Algorithm Comparison Results</span></div>
+            <table id="compareTable">
+              <thead>
+                <tr>
+                  <th>Algorithm</th>
+                  <th>Wire Length</th>
+                  <th>Overlaps</th>
+                  <th>DRC</th>
+                  <th>Power (mW)</th>
+                  <th>Timing (ns)</th>
+                  <th>Time (s)</th>
+                </tr>
+              </thead>
+              <tbody id="compareBody"></tbody>
+            </table>
+          </div>
+
+        </div>
+
+        <div class="error-box" id="errorBox" style="display:none;"></div>
+      </main>
     </div>
-    <div class="cells-list" id="cellsList"></div>
   </div>
 
-  <!-- Add Connections -->
-  <div class="section">
-    <div class="section-title">Add Connections</div>
-    <div class="counter-badges"><div class="cbadge" id="connCount">0 nets</div></div>
-    <div class="conn-row-inputs">
-      <div><label>From</label><select id="connFrom"><option value="">— select —</option></select></div>
-      <div><label>To</label><select id="connTo"><option value="">— select —</option></select></div>
-      <button class="add-btn" onclick="addConn()" title="Add">+</button>
-    </div>
-    <div class="conn-list" id="connList"></div>
-  </div>
+  <script>
+    let cells = [], connections = [], selectedAlgo = 'sa';
 
-  <!-- Generate -->
-  <div class="section" style="border-bottom:none;">
-    <button class="generate-btn" id="genBtn" onclick="generate()">▶ &nbsp;Generate Layout</button>
-    <button class="compare-btn" id="cmpBtn" onclick="compareAll()">⚡ &nbsp;Compare All 3 Algorithms</button>
-  </div>
+    const COLORS = { logic: '#7c3aed', register: '#0891b2', mux: '#d97706', flipflop: '#059669', gate: '#dc2626', memory: '#1d4ed8', io: '#047857', buffer: '#b45309' };
+    const ALGO_DESC = {
+      sa: 'Temperature-based optimization. Accepts bad moves with decreasing probability to escape local optima.',
+      ga: 'Evolution-inspired. Uses selection, crossover, and mutation across a population to find optimal placement.',
+      pso: 'Swarm intelligence. Particles explore the solution space guided by personal and global best positions.'
+    };
 
-</aside>
+    function setAlgo(algo, el) {
+      selectedAlgo = algo;
+      document.querySelectorAll('.algo-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('algoDesc').textContent = ALGO_DESC[algo];
+    }
 
-<!-- Main Content -->
-<main class="main-content" id="mainContent">
-  <div class="empty-state" id="emptyState">
-    <div class="empty-icon">⬡</div>
-    <h2>No Layout Generated</h2>
-    <p>Load a preset circuit or add your own cells and connections, then click Generate Layout.</p>
-    <p style="font-size:11px;font-family:'Share Tech Mono',monospace;color:var(--muted);opacity:0.5;">3 AI algorithms available — Simulated Annealing, Genetic Algorithm, Particle Swarm</p>
-  </div>
+    function renderCells() {
+      const list = document.getElementById('cellsList'); list.innerHTML = '';
+      cells.forEach((c, i) => {
+        const col = COLORS[c.type] || '#555';
+        const div = document.createElement('div'); div.className = 'cell-tag';
+        div.innerHTML = `<span class="cell-name">${c.name}</span><span class="cell-type-badge" style="background:${col}22;border:1px solid ${col}44;color:${col};">${c.type}</span><span class="cell-dims">${c.w}×${c.h}</span><button class="del-btn" onclick="deleteCell(${i})">×</button>`;
+        list.appendChild(div);
+      });
+      document.getElementById('cellCount').textContent = `${cells.length} cells`;
+      updateConnSelects(); renderConns();
+    }
 
-  <div class="loading-state" id="loadingState" style="display:none;">
-    <div class="spinner"></div>
-    <div class="loading-steps">
-      <div class="loading-step" id="ls1">[ 1 ] Parsing circuit netlist...</div>
-      <div class="loading-step" id="ls2">[ 2 ] Generating baseline placement...</div>
-      <div class="loading-step" id="ls3">[ 3 ] Running AI optimizer...</div>
-      <div class="loading-step" id="ls4">[ 4 ] EDA validation — DRC checks...</div>
-      <div class="loading-step" id="ls5">[ 5 ] Rendering layout image...</div>
-    </div>
-  </div>
+    function renderConns() {
+      const list = document.getElementById('connList'); list.innerHTML = '';
+      connections.forEach((c, i) => {
+        const div = document.createElement('div'); div.className = 'conn-tag';
+        div.innerHTML = `<span class="conn-a">${c[0]}</span><span class="arrow">──►</span><span class="conn-b">${c[1]}</span><button class="del-btn" style="margin-left:auto;" onclick="deleteConn(${i})">×</button>`;
+        list.appendChild(div);
+      });
+      document.getElementById('connCount').textContent = `${connections.length} nets`;
+    }
 
-  <div class="results-area" id="resultsArea" style="display:none;">
+    function updateConnSelects() {
+      ['connFrom', 'connTo'].forEach(id => {
+        const sel = document.getElementById(id); const cur = sel.value;
+        sel.innerHTML = '<option value="">— select —</option>';
+        cells.forEach(c => { const opt = document.createElement('option'); opt.value = c.name; opt.textContent = c.name; if (c.name === cur) opt.selected = true; sel.appendChild(opt); });
+      });
+    }
 
-    <!-- Metrics -->
-    <div class="metrics-grid" id="metricsGrid">
-      <div class="metric-card" id="mc1"><div class="m-label">Wire Length</div><div class="m-val good" id="mv-wl">—</div><div class="m-sub" id="ms-wl">—</div></div>
-      <div class="metric-card" id="mc2"><div class="m-label">DRC Status</div><div class="m-val" id="mv-drc">—</div><div class="m-sub" id="ms-drc">—</div></div>
-      <div class="metric-card" id="mc3"><div class="m-label">Power (Est.)</div><div class="m-val good" id="mv-pwr">—</div><div class="m-sub" id="ms-pwr">—</div></div>
-      <div class="metric-card" id="mc4"><div class="m-label">Timing (Est.)</div><div class="m-val good" id="mv-tim">—</div><div class="m-sub" id="ms-tim">—</div></div>
-      <div class="metric-card" id="mc5"><div class="m-label">Area Util.</div><div class="m-val good" id="mv-area">—</div><div class="m-sub">after optimization</div></div>
-      <div class="metric-card" id="mc6"><div class="m-label">WL Reduction</div><div class="m-val good" id="mv-imp">—</div><div class="m-sub" id="ms-algo">—</div></div>
-    </div>
+    function addCell() {
+      const name = document.getElementById('cellName').value.trim().replace(/\s/g, '_');
+      const type = document.getElementById('cellType').value;
+      const w = parseInt(document.getElementById('cellW').value) || 2;
+      const h = parseInt(document.getElementById('cellH').value) || 2;
+      if (!name) { alert('Enter a cell name.'); return; }
+      if (cells.find(c => c.name === name)) { alert(`Cell "${name}" already exists.`); return; }
+      if (cells.length >= 40) { alert('Maximum 40 cells.'); return; }
+      cells.push({ name, type, w: Math.min(w, 6), h: Math.min(h, 6) });
+      document.getElementById('cellName').value = ''; renderCells();
+    }
 
-    <!-- Export buttons -->
-    <div class="export-row">
-      <a class="export-btn png" id="downloadBtn" download="vlsi_layout.png">↓ Download PNG</a>
-      <a class="export-btn csv" href="/export/csv">↓ Export CSV Data</a>
-    </div>
+    function deleteCell(i) { const name = cells[i].name; cells.splice(i, 1); connections = connections.filter(c => c[0] !== name && c[1] !== name); renderCells(); }
+    function addConn() {
+      const from = document.getElementById('connFrom').value; const to = document.getElementById('connTo').value;
+      if (!from || !to) { alert('Select both cells.'); return; }
+      if (from === to) { alert('Cannot connect to itself.'); return; }
+      if (connections.find(c => c[0] === from && c[1] === to)) { alert('Connection already exists.'); return; }
+      connections.push([from, to]); renderConns();
+    }
+    function deleteConn(i) { connections.splice(i, 1); renderConns(); }
+    function clearAll() { cells = []; connections = []; renderCells(); renderConns(); showEmpty(); }
 
-    <!-- Layout image -->
-    <div class="layout-img-wrap">
-      <div class="layout-img-header">
-        <span style="width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);display:inline-block;"></span>
-        <span>Generated VLSI Layout — Before vs After</span>
-      </div>
-      <img id="layoutImg" src="" alt="VLSI Layout">
-    </div>
+    function loadPreset(name) {
+      fetch('/preset/' + name)
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.error) { alert('Error: ' + data.error); return; }
+          cells = []; connections = [];
+          data.cells.forEach(function (c) { cells.push({ name: c.name, type: c.type, w: c.w, h: c.h }); });
+          data.connections.forEach(function (c) { connections.push([c[0], c[1]]); });
+          document.getElementById('circuitName').value = data.name;
+          // Auto set grid size for large circuits
+          const totalArea = cells.reduce((s, c) => s + c.w * c.h, 0);
+          if (totalArea > 150) { document.getElementById('gridW').value = 40; document.getElementById('gridH').value = 35; }
+          else if (totalArea > 80) { document.getElementById('gridW').value = 30; document.getElementById('gridH').value = 25; }
+          else { document.getElementById('gridW').value = 24; document.getElementById('gridH').value = 20; }
+          renderCells(); renderConns(); showEmpty();
+        })
+        .catch(function (err) { alert('Failed to load preset: ' + err); });
+    }
 
-    <!-- Compare table (shown only after compareAll) -->
-    <div class="compare-table-wrap" id="compareTableWrap" style="display:none;">
-      <div class="compare-table-header"><span>⚡ Algorithm Comparison Results</span></div>
-      <table id="compareTable">
-        <thead>
-          <tr>
-            <th>Algorithm</th><th>Wire Length</th><th>Overlaps</th><th>DRC</th>
-            <th>Power (mW)</th><th>Timing (ns)</th><th>Time (s)</th>
-          </tr>
-        </thead>
-        <tbody id="compareBody"></tbody>
-      </table>
-    </div>
+    // Loading animation
+    let loadingInterval = null;
+    function startLoadingAnim() {
+      [1, 2, 3, 4, 5].forEach(s => document.getElementById('ls' + s).className = 'loading-step');
+      document.getElementById('ls1').className = 'loading-step active'; let i = 0;
+      loadingInterval = setInterval(() => {
+        if (i < 5) { if (i > 0) document.getElementById('ls' + i).className = 'loading-step done'; if (i < 5) document.getElementById('ls' + (i + 1)).className = 'loading-step active'; i++; }
+      }, 700);
+    }
+    function stopLoadingAnim() { if (loadingInterval) { clearInterval(loadingInterval); loadingInterval = null; } [1, 2, 3, 4, 5].forEach(s => { document.getElementById('ls' + s).className = 'loading-step done'; }); }
 
-  </div>
+    function showEmpty() { document.getElementById('emptyState').style.display = 'flex'; document.getElementById('loadingState').style.display = 'none'; document.getElementById('resultsArea').style.display = 'none'; document.getElementById('errorBox').style.display = 'none'; }
+    function showLoading(msg) {
+      document.getElementById('emptyState').style.display = 'none';
+      document.getElementById('loadingState').style.display = 'flex';
+      document.getElementById('resultsArea').style.display = 'none';
+      document.getElementById('errorBox').style.display = 'none';
+      document.querySelector('.loading-state p') && (document.querySelector('.loading-state p').textContent = msg || 'Running AI Optimizer...');
+      startLoadingAnim();
+    }
+    function showError(msg) {
+      stopLoadingAnim();
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'none';
+      document.getElementById('resultsArea').style.display = 'none';
+      const eb = document.getElementById('errorBox'); eb.style.display = 'block'; eb.textContent = '⚠ ' + msg;
+    }
+    function showResults(data) {
+      stopLoadingAnim();
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('resultsArea').style.display = 'block';
+      document.getElementById('errorBox').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'none';
+      const m = data.metrics;
+      document.getElementById('mv-wl').textContent = m.wl_after + ' units';
+      document.getElementById('ms-wl').textContent = 'was ' + m.wl_before + ' units';
+      document.getElementById('mv-drc').textContent = m.drc;
+      document.getElementById('mv-drc').className = 'm-val ' + (m.drc === 'PASS' ? 'good' : 'warn');
+      document.getElementById('ms-drc').textContent = m.ov_after === 0 ? 'no violations' : m.ov_after + ' to fix';
+      document.getElementById('mv-pwr').textContent = m.power_after + ' mW';
+      document.getElementById('ms-pwr').textContent = 'was ' + m.power_before + ' mW';
+      document.getElementById('mv-tim').textContent = m.timing_after + ' ns';
+      document.getElementById('ms-tim').textContent = 'was ' + m.timing_before + ' ns';
+      document.getElementById('mv-area').textContent = m.area_util + '%';
+      document.getElementById('mv-imp').textContent = '▼ ' + m.wl_improve + '%';
+      document.getElementById('ms-algo').textContent = m.algorithm;
+      const img = document.getElementById('layoutImg'); img.src = 'data:image/png;base64,' + data.image;
+      document.getElementById('downloadBtn').href = 'data:image/png;base64,' + data.image;
+      setTimeout(() => { [1, 2, 3, 4, 5, 6].forEach((n, i) => { setTimeout(() => { document.getElementById('mc' + n).classList.add('show'); }, i * 80); }); }, 100);
+    }
 
-  <div class="error-box" id="errorBox" style="display:none;"></div>
-</main>
-</div>
-</div>
+    function generate() {
+      if (cells.length < 2) { alert('Add at least 2 cells first.'); return; }
+      if (connections.length < 1) { alert('Add at least 1 connection first.'); return; }
+      document.getElementById('genBtn').disabled = true;
+      document.getElementById('cmpBtn').disabled = true;
+      document.getElementById('compareTableWrap').style.display = 'none';
+      showLoading('Running ' + { 'sa': 'Simulated Annealing', 'ga': 'Genetic Algorithm', 'pso': 'Particle Swarm' }[selectedAlgo] + '...');
+      fetch('/generate', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cells, connections, circuit_name: document.getElementById('circuitName').value || 'Custom', grid_w: parseInt(document.getElementById('gridW').value) || 24, grid_h: parseInt(document.getElementById('gridH').value) || 20, algorithm: selectedAlgo })
+      }).then(r => r.json()).then(data => {
+        document.getElementById('genBtn').disabled = false;
+        document.getElementById('cmpBtn').disabled = false;
+        if (data.error) showError(data.error); else showResults(data);
+      }).catch(err => { document.getElementById('genBtn').disabled = false; document.getElementById('cmpBtn').disabled = false; showError('Server error: ' + err); });
+    }
 
-<script>
-let cells=[], connections=[], selectedAlgo='sa';
+    function compareAll() {
+      if (cells.length < 2) { alert('Add at least 2 cells first.'); return; }
+      if (connections.length < 1) { alert('Add at least 1 connection first.'); return; }
+      document.getElementById('genBtn').disabled = true;
+      document.getElementById('cmpBtn').disabled = true;
+      showLoading('Comparing all 3 algorithms — this takes ~30 seconds...');
+      fetch('/compare', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cells, connections, circuit_name: document.getElementById('circuitName').value || 'Custom', grid_w: parseInt(document.getElementById('gridW').value) || 24, grid_h: parseInt(document.getElementById('gridH').value) || 20 })
+      }).then(r => r.json()).then(data => {
+        document.getElementById('genBtn').disabled = false;
+        document.getElementById('cmpBtn').disabled = false;
+        stopLoadingAnim();
+        if (data.error) { showError(data.error); return; }
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'none';
+        document.getElementById('resultsArea').style.display = 'block';
+        document.getElementById('compareTableWrap').style.display = 'block';
+        const results = data.results;
+        const best_wl = Math.min(...Object.values(results).map(r => r.wl));
+        const tbody = document.getElementById('compareBody'); tbody.innerHTML = '';
+        Object.values(results).forEach(r => {
+          const isBest = r.wl === best_wl;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td style="color:var(--accent);font-weight:bold;">${r.name}</td><td class="${isBest ? 'best-col' : ''}">${r.wl}${isBest ? ' ★' : ''}</td><td>${r.overlaps}</td><td class="${r.drc === 'PASS' ? 'pass' : 'fail'}">${r.drc}</td><td>${r.power}</td><td>${r.timing}</td><td>${r.elapsed}s</td>`;
+          tbody.appendChild(tr);
+        });
+      }).catch(err => { document.getElementById('genBtn').disabled = false; document.getElementById('cmpBtn').disabled = false; showError('Server error: ' + err); });
+    }
 
-const COLORS={logic:'#7c3aed',register:'#0891b2',mux:'#d97706',flipflop:'#059669',gate:'#dc2626',memory:'#1d4ed8',io:'#047857',buffer:'#b45309'};
-const ALGO_DESC={
-  sa:'Temperature-based optimization. Accepts bad moves with decreasing probability to escape local optima.',
-  ga:'Evolution-inspired. Uses selection, crossover, and mutation across a population to find optimal placement.',
-  pso:'Swarm intelligence. Particles explore the solution space guided by personal and global best positions.'
-};
-
-function setAlgo(algo, el){
-  selectedAlgo=algo;
-  document.querySelectorAll('.algo-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('algoDesc').textContent=ALGO_DESC[algo];
-}
-
-function renderCells(){
-  const list=document.getElementById('cellsList'); list.innerHTML='';
-  cells.forEach((c,i)=>{
-    const col=COLORS[c.type]||'#555';
-    const div=document.createElement('div'); div.className='cell-tag';
-    div.innerHTML=`<span class="cell-name">${c.name}</span><span class="cell-type-badge" style="background:${col}22;border:1px solid ${col}44;color:${col};">${c.type}</span><span class="cell-dims">${c.w}×${c.h}</span><button class="del-btn" onclick="deleteCell(${i})">×</button>`;
-    list.appendChild(div);
-  });
-  document.getElementById('cellCount').textContent=`${cells.length} cells`;
-  updateConnSelects(); renderConns();
-}
-
-function renderConns(){
-  const list=document.getElementById('connList'); list.innerHTML='';
-  connections.forEach((c,i)=>{
-    const div=document.createElement('div'); div.className='conn-tag';
-    div.innerHTML=`<span class="conn-a">${c[0]}</span><span class="arrow">──►</span><span class="conn-b">${c[1]}</span><button class="del-btn" style="margin-left:auto;" onclick="deleteConn(${i})">×</button>`;
-    list.appendChild(div);
-  });
-  document.getElementById('connCount').textContent=`${connections.length} nets`;
-}
-
-function updateConnSelects(){
-  ['connFrom','connTo'].forEach(id=>{
-    const sel=document.getElementById(id); const cur=sel.value;
-    sel.innerHTML='<option value="">— select —</option>';
-    cells.forEach(c=>{const opt=document.createElement('option');opt.value=c.name;opt.textContent=c.name;if(c.name===cur)opt.selected=true;sel.appendChild(opt);});
-  });
-}
-
-function addCell(){
-  const name=document.getElementById('cellName').value.trim().replace(/\s/g,'_');
-  const type=document.getElementById('cellType').value;
-  const w=parseInt(document.getElementById('cellW').value)||2;
-  const h=parseInt(document.getElementById('cellH').value)||2;
-  if(!name){alert('Enter a cell name.');return;}
-  if(cells.find(c=>c.name===name)){alert(`Cell "${name}" already exists.`);return;}
-  if(cells.length>=40){alert('Maximum 40 cells.');return;}
-  cells.push({name,type,w:Math.min(w,6),h:Math.min(h,6)});
-  document.getElementById('cellName').value=''; renderCells();
-}
-
-function deleteCell(i){const name=cells[i].name;cells.splice(i,1);connections=connections.filter(c=>c[0]!==name&&c[1]!==name);renderCells();}
-function addConn(){
-  const from=document.getElementById('connFrom').value; const to=document.getElementById('connTo').value;
-  if(!from||!to){alert('Select both cells.');return;}
-  if(from===to){alert('Cannot connect to itself.');return;}
-  if(connections.find(c=>c[0]===from&&c[1]===to)){alert('Connection already exists.');return;}
-  connections.push([from,to]); renderConns();
-}
-function deleteConn(i){connections.splice(i,1);renderConns();}
-function clearAll(){cells=[];connections=[];renderCells();renderConns();showEmpty();}
-
-function loadPreset(name){
-  fetch('/preset/'+name)
-    .then(function(r){return r.json();})
-    .then(function(data){
-      if(data.error){alert('Error: '+data.error);return;}
-      cells=[]; connections=[];
-      data.cells.forEach(function(c){cells.push({name:c.name,type:c.type,w:c.w,h:c.h});});
-      data.connections.forEach(function(c){connections.push([c[0],c[1]]);});
-      document.getElementById('circuitName').value=data.name;
-      // Auto set grid size for large circuits
-      const totalArea=cells.reduce((s,c)=>s+c.w*c.h,0);
-      if(totalArea>150){document.getElementById('gridW').value=40;document.getElementById('gridH').value=35;}
-      else if(totalArea>80){document.getElementById('gridW').value=30;document.getElementById('gridH').value=25;}
-      else{document.getElementById('gridW').value=24;document.getElementById('gridH').value=20;}
-      renderCells(); renderConns(); showEmpty();
-    })
-    .catch(function(err){alert('Failed to load preset: '+err);});
-}
-
-// Loading animation
-let loadingInterval=null;
-function startLoadingAnim(){
-  [1,2,3,4,5].forEach(s=>document.getElementById('ls'+s).className='loading-step');
-  document.getElementById('ls1').className='loading-step active'; let i=0;
-  loadingInterval=setInterval(()=>{
-    if(i<5){if(i>0)document.getElementById('ls'+i).className='loading-step done';if(i<5)document.getElementById('ls'+(i+1)).className='loading-step active';i++;}
-  },700);
-}
-function stopLoadingAnim(){if(loadingInterval){clearInterval(loadingInterval);loadingInterval=null;}[1,2,3,4,5].forEach(s=>{document.getElementById('ls'+s).className='loading-step done';});}
-
-function showEmpty(){document.getElementById('emptyState').style.display='flex';document.getElementById('loadingState').style.display='none';document.getElementById('resultsArea').style.display='none';document.getElementById('errorBox').style.display='none';}
-function showLoading(msg){
-  document.getElementById('emptyState').style.display='none';
-  document.getElementById('loadingState').style.display='flex';
-  document.getElementById('resultsArea').style.display='none';
-  document.getElementById('errorBox').style.display='none';
-  document.querySelector('.loading-state p') && (document.querySelector('.loading-state p').textContent=msg||'Running AI Optimizer...');
-  startLoadingAnim();
-}
-function showError(msg){
-  stopLoadingAnim();
-  document.getElementById('loadingState').style.display='none';
-  document.getElementById('emptyState').style.display='none';
-  document.getElementById('resultsArea').style.display='none';
-  const eb=document.getElementById('errorBox'); eb.style.display='block'; eb.textContent='⚠ '+msg;
-}
-function showResults(data){
-  stopLoadingAnim();
-  document.getElementById('loadingState').style.display='none';
-  document.getElementById('resultsArea').style.display='block';
-  document.getElementById('errorBox').style.display='none';
-  document.getElementById('emptyState').style.display='none';
-  const m=data.metrics;
-  document.getElementById('mv-wl').textContent=m.wl_after+' units';
-  document.getElementById('ms-wl').textContent='was '+m.wl_before+' units';
-  document.getElementById('mv-drc').textContent=m.drc;
-  document.getElementById('mv-drc').className='m-val '+(m.drc==='PASS'?'good':'warn');
-  document.getElementById('ms-drc').textContent=m.ov_after===0?'no violations':m.ov_after+' to fix';
-  document.getElementById('mv-pwr').textContent=m.power_after+' mW';
-  document.getElementById('ms-pwr').textContent='was '+m.power_before+' mW';
-  document.getElementById('mv-tim').textContent=m.timing_after+' ns';
-  document.getElementById('ms-tim').textContent='was '+m.timing_before+' ns';
-  document.getElementById('mv-area').textContent=m.area_util+'%';
-  document.getElementById('mv-imp').textContent='▼ '+m.wl_improve+'%';
-  document.getElementById('ms-algo').textContent=m.algorithm;
-  const img=document.getElementById('layoutImg'); img.src='data:image/png;base64,'+data.image;
-  document.getElementById('downloadBtn').href='data:image/png;base64,'+data.image;
-  setTimeout(()=>{[1,2,3,4,5,6].forEach((n,i)=>{setTimeout(()=>{document.getElementById('mc'+n).classList.add('show');},i*80);});},100);
-}
-
-function generate(){
-  if(cells.length<2){alert('Add at least 2 cells first.');return;}
-  if(connections.length<1){alert('Add at least 1 connection first.');return;}
-  document.getElementById('genBtn').disabled=true;
-  document.getElementById('cmpBtn').disabled=true;
-  document.getElementById('compareTableWrap').style.display='none';
-  showLoading('Running '+{'sa':'Simulated Annealing','ga':'Genetic Algorithm','pso':'Particle Swarm'}[selectedAlgo]+'...');
-  fetch('/generate',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({cells,connections,circuit_name:document.getElementById('circuitName').value||'Custom',grid_w:parseInt(document.getElementById('gridW').value)||24,grid_h:parseInt(document.getElementById('gridH').value)||20,algorithm:selectedAlgo})
-  }).then(r=>r.json()).then(data=>{
-    document.getElementById('genBtn').disabled=false;
-    document.getElementById('cmpBtn').disabled=false;
-    if(data.error) showError(data.error); else showResults(data);
-  }).catch(err=>{document.getElementById('genBtn').disabled=false;document.getElementById('cmpBtn').disabled=false;showError('Server error: '+err);});
-}
-
-function compareAll(){
-  if(cells.length<2){alert('Add at least 2 cells first.');return;}
-  if(connections.length<1){alert('Add at least 1 connection first.');return;}
-  document.getElementById('genBtn').disabled=true;
-  document.getElementById('cmpBtn').disabled=true;
-  showLoading('Comparing all 3 algorithms — this takes ~30 seconds...');
-  fetch('/compare',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({cells,connections,circuit_name:document.getElementById('circuitName').value||'Custom',grid_w:parseInt(document.getElementById('gridW').value)||24,grid_h:parseInt(document.getElementById('gridH').value)||20})
-  }).then(r=>r.json()).then(data=>{
-    document.getElementById('genBtn').disabled=false;
-    document.getElementById('cmpBtn').disabled=false;
-    stopLoadingAnim();
-    if(data.error){showError(data.error);return;}
-    document.getElementById('loadingState').style.display='none';
-    document.getElementById('emptyState').style.display='none';
-    document.getElementById('resultsArea').style.display='block';
-    document.getElementById('compareTableWrap').style.display='block';
-    const results=data.results;
-    const best_wl=Math.min(...Object.values(results).map(r=>r.wl));
-    const tbody=document.getElementById('compareBody'); tbody.innerHTML='';
-    Object.values(results).forEach(r=>{
-      const isBest=r.wl===best_wl;
-      const tr=document.createElement('tr');
-      tr.innerHTML=`<td style="color:var(--accent);font-weight:bold;">${r.name}</td><td class="${isBest?'best-col':''}">${r.wl}${isBest?' ★':''}</td><td>${r.overlaps}</td><td class="${r.drc==='PASS'?'pass':'fail'}">${r.drc}</td><td>${r.power}</td><td>${r.timing}</td><td>${r.elapsed}s</td>`;
-      tbody.appendChild(tr);
-    });
-  }).catch(err=>{document.getElementById('genBtn').disabled=false;document.getElementById('cmpBtn').disabled=false;showError('Server error: '+err);});
-}
-
-document.getElementById('cellName').addEventListener('keydown',e=>{if(e.key==='Enter')addCell();});
-renderCells(); renderConns();
-</script>
+    document.getElementById('cellName').addEventListener('keydown', e => { if (e.key === 'Enter') addCell(); });
+    renderCells(); renderConns();
+  </script>
 </body>
+
 </html>
